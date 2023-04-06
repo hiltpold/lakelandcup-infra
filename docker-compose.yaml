@@ -34,8 +34,6 @@ services:
     build:
       context: ../lakelandcup-auth-service/
       dockerfile: ../lakelandcup-auth-service/docker/Dockerfile
-    ports:
-      - 50010:50010
   fantasy:
     container_name: lakelandcup-fantasy
     depends_on:
@@ -45,8 +43,6 @@ services:
     build:
       context: ../lakelandcup-fantasy-service/
       dockerfile: ../lakelandcup-fantasy-service/docker/Dockerfile
-    ports:
-      - 50020:50020
   db:
     image: postgres:latest
     container_name: lakelandcup-db
@@ -63,7 +59,6 @@ services:
     env_file: .pgadmin.env
     volumes:
       - pgadmin-data:/var/lib/pgadmin
- 
   certbot:
     image: certbot/certbot
     container_name: certbot
