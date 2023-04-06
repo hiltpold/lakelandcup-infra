@@ -11,9 +11,9 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ./docker/nginx:/etc/nginx/conf.d
-      - ./docker/certbot/conf:/etc/letsencrypt
-      - ./docker/certbot/www:/var/www/certbot
+      - ../lakelandcup-ui/docker/nginx:/etc/nginx/conf.d
+      - ../lakelandcup-ui/docker/certbot/conf:/etc/letsencrypt
+      - ../lakelandcup-ui/docker/certbot/www:/var/www/certbot
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   gateway:
     container_name: lakelandcup-gateway
