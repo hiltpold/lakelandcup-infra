@@ -11,9 +11,10 @@ services:
       - 80:80
       - 443:443
     volumes:
-      - ../lakelandcup-ui/docker/nginx:/etc/nginx/conf.d
-      - ../lakelandcup-ui/docker/certbot/conf:/etc/letsencrypt
-      - ../lakelandcup-ui/docker/certbot/www:/var/www/certbot
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/certbot/conf:/etc/letsencrypt
+      - ./docker/certbot/www:/var/www/certbot
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
   gateway:
     container_name: lakelandcup-gateway
     depends_on:
@@ -22,8 +23,8 @@ services:
     build:
       context: ../lakelandcup-api-gateway/
       dockerfile: ../lakelandcup-api-gateway/docker/Dockerfile
-      #ports:
-      #- 50000:50000
+    ports:
+      - 50000:50000
   auth:
     container_name: lakelandcup-auth
     depends_on:
@@ -33,8 +34,8 @@ services:
     build:
       context: ../lakelandcup-auth-service/
       dockerfile: ../lakelandcup-auth-service/docker/Dockerfile
-      #ports:
-      #- 50010:50010
+    ports:
+      - 50010:50010
   fantasy:
     container_name: lakelandcup-fantasy
     depends_on:
@@ -44,8 +45,8 @@ services:
     build:
       context: ../lakelandcup-fantasy-service/
       dockerfile: ../lakelandcup-fantasy-service/docker/Dockerfile
-      #ports:
-      #- 50020:50020
+    ports:
+      - 50020:50020
   db:
     image: postgres:latest
     container_name: lakelandcup-db
@@ -69,7 +70,7 @@ services:
     volumes:
       - ../lakelandcup-ui/docker/certbot/conf:/etc/letsencrypt
       - ../lakelandcup-ui/docker/certbot/www:/var/www/certbot
-
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 volumes:
   db-data:
   pgadmin-data:
