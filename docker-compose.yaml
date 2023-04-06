@@ -1,0 +1,75 @@
+version: "3.9"
+services:
+  ui:
+    container_name: lakelandcup-ui
+    depends_on:
+      - gateway
+    build:
+      context: ../lakelandcup-ui/
+      dockerfile: ../lakelandcup-ui/docker/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./docker/nginx:/etc/nginx/conf.d
+      - ./docker/certbot/conf:/etc/letsencrypt
+      - ./docker/certbot/www:/var/www/certbot
+  gateway:
+    container_name: lakelandcup-gateway
+    depends_on:
+      - auth
+      - fantasy
+    build:
+      context: ../lakelandcup-api-gateway/
+      dockerfile: ../lakelandcup-api-gateway/docker/Dockerfile
+    ports:
+      - 50000:50000
+  auth:
+    container_name: lakelandcup-auth
+    depends_on:
+      - db
+    extra_hosts:
+          -  "host.docker.internal:host-gateway"
+    build:
+      context: ../lakelandcup-auth-service/
+      dockerfile: ../lakelandcup-auth-service/docker/Dockerfile
+    ports:
+      - 50010:50010
+  fantasy:
+    container_name: lakelandcup-fantasy
+    depends_on:
+      - db
+    extra_hosts:
+          -  "host.docker.internal:host-gateway"
+    build:
+      context: ../lakelandcup-fantasy-service/
+      dockerfile: ../lakelandcup-fantasy-service/docker/Dockerfile
+    ports:
+      - 50020:50020
+  db:
+    image: postgres:latest
+    container_name: lakelandcup-db
+    restart: always
+    env_file: .database.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - db
+    container_name: pgadmin4
+    restart: always
+    env_file: .pgadmin.env
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+ 
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - ../lakelandcup-ui/docker/certbot/conf:/etc/letsencrypt
+      - ../lakelandcup-ui/docker/certbot/www:/var/www/certbot
+
+volumes:
+  db-data:
+  pgadmin-data:
